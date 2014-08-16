@@ -66,5 +66,5 @@ if __name__ == "__main__":
     else:
         port_number = 80
     is_dev = os.environ.get('ENV', None) == 'dev'
-    server = os.environ.get('SERVER', "wsgiref")
+    server = os.environ.get('SERVER', "auto")
     run(host='0.0.0.0', port=port_number, debug=is_dev, server=server)
