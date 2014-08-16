@@ -13,14 +13,15 @@ from bottle import route, run, request, abort
 
 @route("/", method=['GET', 'POST'])
 def index():
-    # Store the IP address blocks that github uses for hook requests.
-    hook_blocks = requests.get('https://api.github.com/meta').json()['hooks']
-
     if request.method == 'GET':
         return ' Nothing to see here, move along ...'
 
     elif request.method == 'POST':
-        # Check if the POST request if from github.com
+        # Store the IP address blocks that github uses for hook requests.
+        logging.debug("Received webhook call from Github, fetching IP range...")
+        hook_blocks = requests.get('https://api.github.com/meta').json()['hooks']
+
+        # Check if the POST request is from github.com
         for block in hook_blocks:
             ip = ipaddress.ip_address(u'%s' % request.remote_addr)
             if ipaddress.ip_address(ip) in ipaddress.ip_network(block):
@@ -49,10 +50,13 @@ def index():
         if repo and repo.get('path', None):
             if repo.get('action', None):
                 for action in repo['action']:
+                    logging.debug("Triggering action", action, "at", repo['path'])
                     subprocess.Popen(action,
                                      cwd=repo['path'])
             else:
-                subprocess.Popen(["git", "pull", "origin", "master"],
+                action = ["git", "pull", "origin", "master"]
+                logging.debug("Triggering action", action, "at", repo['path'])
+                subprocess.Popen(action,
                                  cwd=repo['path'])
         return 'OK'
 
