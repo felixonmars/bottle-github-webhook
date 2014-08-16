@@ -69,6 +69,8 @@ if __name__ == "__main__":
             sys.exit(1)
     else:
         port_number = 80
-    is_dev = os.environ.get('ENV', None) == 'dev'
+    debug = os.environ.get('DEBUG', False)
     server = os.environ.get('SERVER', "auto")
-    run(host='0.0.0.0', port=port_number, debug=is_dev, server=server)
+    if debug:
+        logging.basicConfig(level=logging.DEBUG)
+    run(host='0.0.0.0', port=port_number, debug=debug, server=server)
